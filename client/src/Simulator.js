@@ -337,7 +337,9 @@ class Simulator extends React.Component {
 				{aComps}
 				<h2>Consumers</h2>
 				<h3>Total Consumed: {totalConsumed}</h3>
-				{cComps}
+				<svg width="600" height="600">
+					{cComps}
+				</svg>
 			</div>
 		);
 	}
