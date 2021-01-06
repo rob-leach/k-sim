@@ -4,7 +4,7 @@ import { cloneDeep } from "lodash" // Because I am a horrible monster who can't 
 
 import Producer from './Producer.js';
 import Partition from './Partition.js';
-import Consumer from './Consumer.js';
+import ConsumerLine from './ConsumerLine.js';
 import SimulatorSettings from './SimulatorSettings.js';
 
 class Simulator extends React.Component {
@@ -291,54 +291,81 @@ class Simulator extends React.Component {
 	}
 
 	render() {
+		let svgDim = {
+			width: 600,
+			height: 600
+		}
+		let partitionSvgLayout = {
+			w: 400,
+			h: 500,
+			tr: {
+				x: 100, // (600 - 400) / 2
+				y: 100, // (600 - 500)
+			},
+			rectMargin: 20 //Only on the X-axis, they are full-heighted
+		}
+		let partitionRectangles = [] // Data describing the rectangle of the thing
+		let rectX = partitionSvgLayout.tr.x + (partitionSvgLayout.rectMargin / 2) 
+
+		const aComps = [] // Actual DOM things
+
+		partitionSvgLayout.rectWidth = ( partitionSvgLayout.w - 
+			this.state.partitions.length * partitionSvgLayout.rectMargin ) /
+			this.state.partitions.length
+
+		let totalOffsets = 0 //TODO: Move this into the simulator, make a TOPIC object to aggregate it
+		for (const a of this.state.partitions.values()) {
+			totalOffsets = totalOffsets + a.maxOffset
+			let aR = { 
+				x: rectX,
+				y: 600 - Math.min(a.maxOffset, partitionSvgLayout.h),
+				width: partitionSvgLayout.rectWidth,
+				height: Math.min(a.maxOffset, partitionSvgLayout.h) 
+			}
+			partitionRectangles.push(aR)
+
+			aComps.push(<Partition a={a} aR={aR} key={"Partition-"+a.partitionId}  />)
+
+			rectX += partitionSvgLayout.rectMargin + partitionSvgLayout.rectWidth
+		}
+
 		const pComps = []
+		/* Skipping partition comps for now
 		let totalBacklog = 0
 		for (const p of this.state.producers.values()) {
 			totalBacklog = totalBacklog + p.backlog
 			pComps.push(<Producer backlog={p.backlog} key={"Producer-"+p.producerId}/>)
 		}
-
-		const aComps = []
-		let totalOffsets = 0
-		for (const a of this.state.partitions.values()) {
-			totalOffsets = totalOffsets + a.maxOffset
-			aComps.push(<Partition maxOffset={a.maxOffset} key={"Partition-"+a.partitionId}  />)
-		}
+		*/
 
 		const cComps = []
 		let totalConsumed = 0
 		for (const c of this.state.consumers.values()) {
 			totalConsumed = totalConsumed + c.totalOffsets
-			cComps.push(<Consumer partitions={this.state.partitions} c={c} key={"Consumer-"+c.consumerId}/>)
+			cComps.push(<ConsumerLine partitions={this.state.partitions} partitionRectangles={partitionRectangles} c={c} key={"Consumer-"+c.consumerId}/>)
 		}
 
 		return(
 			<div className="k-sim">
-				<div className="ticker"> 
-				  {this.state.running ? 'run' : 'STOP'} 
+				<div className="k-sim-control"> 
+					{this.state.running ? 'run' : 'STOP'} 
 					({this.state.tickNumber}/{this.state.maxTicks}) 
+					{ this.state.running && 
+						<button onClick = {() => this.stopSimulator()}>STOP</button>}
+					{ this.state.initialized && 
+						( this.state.running || 
+						<button onClick = {() => this.resumeSimulator()}>resume</button>)}
+					{ this.state.running ||
+						<button onClick = {() => this.initializeSimulator()}>INIT</button>}
+					{ this.props.settings.showSettings && 
+						<SimulatorSettings settings={this.props.settings}/>}
 				</div>
-				<h1>Simulation</h1>
-				{ this.state.running && 
-					<button onClick = {() => this.stopSimulator()}>STOP</button>}
-				{ this.state.initialized && 
-					( this.state.running || 
-					<button onClick = {() => this.resumeSimulator()}>resume</button>)}
-				{ this.state.running ||
-					<button onClick = {() => this.initializeSimulator()}>INIT</button>}
-				{ this.props.settings.showSettings && 
-					<SimulatorSettings settings={this.props.settings}/>}
 
-				<h2>Producers</h2>
-				<h3>Total Backlog: {totalBacklog}</h3>
-				{pComps}
-				<h2>Partitions</h2>
-				<h3>Total Offsets: {totalOffsets}</h3>
-				{aComps}
-				<h2>Consumers</h2>
-				<h3>Total Consumed: {totalConsumed}</h3>
-				<svg width="600" height="600">
-					{cComps}
+				<h1>Simulation</h1>
+				<svg width={svgDim.width} height={svgDim.width}>
+					<g class="layer-1-partitions"> {aComps} </g>
+					<g class="layer-2-producers">  </g>
+					<g class="layer-3-consumer"> {cComps} </g>
 				</svg>
 			</div>
 		);

@@ -14,16 +14,27 @@ class ConsumerPartition extends React.Component {
 		const fillColor = ( (this.props.lag > (this.props.consumeRate * 2)) ? lagColor : defaultColor )
 
 		const r = Math.max(5, Math.log(this.props.lag) * 7)
+
+		//TODO: Make a shortener that does 12.1k vs 12100  (will matter more if we end up on big sizes)
+		const lagLabel = ( this.props.lag > 12 ? `p${this.props.partitionId}:${this.props.lag}` : '-' )
+
 		return(
+			<React.Fragment>
 			<circle 
 				cx={this.props.xPos} 
 				cy={this.props.yPos} 
 				fill={fillColor}
 				stroke="black"
-				r={r}
-			>
-				{this.props.lag}
-			</circle>
+				r={r} />
+
+			<text 
+				x={this.props.xPos} 
+				y={this.props.yPos}
+				dominant-baseline="middle"
+				text-anchor="middle">
+				{lagLabel}	
+			</text>
+			</React.Fragment>
 		)
 
 		//<div>---p({this.props.partitionId}) lag: {this.props.lag} current: {this.props.currentOffset}  </div>
