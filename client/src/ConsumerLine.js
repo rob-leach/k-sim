@@ -1,5 +1,45 @@
 import React from 'react';
 
+class ConsumerLagBubble extends React.Component {
+	constructor(props) {
+		super();
+		this.state = { };
+	}
+
+	render() {
+		//TODO:  **CSS STYLING!**
+		const lagColor = 'red'
+		const defaultColor = 'lightgray'
+
+		const fillColor = ( (this.props.lag > (this.props.consumeRate * 2)) ? lagColor : defaultColor )
+
+		const bubbleFactor = this.props.bubbleSize / 3.3 //At 1,000 records, we will be close to max bubble size and gently grow to bubble size at 2k
+		const r = Math.max(5, Math.log(this.props.lag) * bubbleFactor)
+
+		//TODO: Make a shortener that does 12.1k vs 12100  (will matter more if we end up on big sizes)
+		const lagLabel = ( this.props.lag > 12 ? `c${this.props.consumerId}:${this.props.lag}` : '-' )
+
+		return(
+			<React.Fragment>
+			<circle 
+				cx={this.props.xPos} 
+				cy={this.props.yPos} 
+				fill={fillColor}
+				stroke="black"
+				r={r} />
+			<text 
+				x={this.props.xPos} 
+				y={this.props.yPos}
+				dominantBaseline="middle"
+				textAnchor="middle">
+				{lagLabel}	
+			</text>
+			</React.Fragment>
+		)
+
+		//<div>---p({this.props.partitionId}) lag: {this.props.lag} current: {this.props.currentOffset}  </div>
+	}
+}
 class ConsumerLine extends React.Component {
 	constructor(props) {
 		super();
@@ -31,15 +71,28 @@ class ConsumerLine extends React.Component {
 						y1={yPos}
 						y2={yPos}
 						stroke='purple'
-						stroke-width="6"
+						strokeWidth="6" //TODO: Vary this based on the amount of records consumed perhaps?
 						/>
 				</React.Fragment>
-			) 
+			)
 		}
 
+		//lag Component
+		let bubbleOffset = this.props.svgLayout.bubbleSize * (this.props.c.consumerId + .5) * 4
+		const lComp = <ConsumerLagBubble
+			xPos={this.props.svgLayout.tr.x + this.props.svgLayout.w / 2}
+			yPos={this.props.svgLayout.tr.y + bubbleOffset}
+			bubbleSize={this.props.svgLayout.bubbleSize} //Its a lie, but it's close enough
+			consumerId={this.props.c.consumerId}
+			lag={totalLag}
+		/>
+
+
+
 		return(
-			<g class="consumer-group" id={"consumer-" + cId}>
+			<g class="g-consumer" id={"consumer-" + cId}>
 				{aComps}
+				{lComp}
 			</g>
 		);
 	}

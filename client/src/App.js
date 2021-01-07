@@ -13,9 +13,9 @@ class App extends Component {
 				partitionBalanceStrategy: 'round-robin',
 				showSettings: true,
 				layout: {
-					numProducers: 31,
-					numPartitions: 12,
-					numConsumers: 16
+					numProducers: 12,
+					numPartitions: 8,
+					numConsumers: 6
 				}
 			},
 		}

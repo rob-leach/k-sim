@@ -342,9 +342,19 @@ class Simulator extends React.Component {
 
 		const cComps = []
 		let totalConsumed = 0
+		let consumerSvgLayout = {
+			w: 100,
+			h: 400,
+			tr: {
+				x: 500, // (100 + 400)
+				y: 200, // (600 / )
+			},
+			//bubbleMargin: bubbleSize,
+			bubbleSize: (400 / this.state.consumers.length / 4) //margin is the same as bubble size
+		}
 		for (const c of this.state.consumers.values()) {
 			totalConsumed = totalConsumed + c.totalOffsets
-			cComps.push(<ConsumerLine partitions={this.state.partitions} partitionRectangles={partitionRectangles} c={c} key={"Consumer-"+c.consumerId}/>)
+			cComps.push(<ConsumerLine numConsumers={this.state.consumers.length} svgLayout={consumerSvgLayout} partitions={this.state.partitions} partitionRectangles={partitionRectangles} c={c} key={"Consumer-"+c.consumerId}/>)
 		}
 
 		return(
@@ -365,7 +375,14 @@ class Simulator extends React.Component {
 				<svg class="k-sim-svg" width={svgDim.width} height={svgDim.width}>
 					<g class="layer-1-partitions"> {aComps} </g>
 					<g class="layer-2-producers">  </g>
-					<g class="layer-3-consumer"> {cComps} </g>
+					<g class="layer-3-consumer"> 
+						<text x={consumerSvgLayout.tr.x} y={consumerSvgLayout.tr.y}
+							dominantBaseline="middle" textAnchor="left"
+							textLength={consumerSvgLayout.w}> 
+						Consumer Lag
+						</text>
+						{cComps} 
+					</g>
 				</svg>
 			</div>
 		);
