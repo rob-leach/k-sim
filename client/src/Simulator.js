@@ -7,6 +7,8 @@ import Partition from './Partition.js';
 import ConsumerLine from './ConsumerLine.js';
 import SimulatorSettings from './SimulatorSettings.js';
 
+import './Simulator.css'
+
 class Simulator extends React.Component {
 	constructor(props) {
 		super();
@@ -346,8 +348,8 @@ class Simulator extends React.Component {
 		}
 
 		return(
-			<div className="k-sim">
-				<div className="k-sim-control"> 
+			<div class="k-sim">
+				<div class="k-sim-control"> 
 					{this.state.running ? 'run' : 'STOP'} 
 					({this.state.tickNumber}/{this.state.maxTicks}) 
 					{ this.state.running && 
@@ -360,9 +362,7 @@ class Simulator extends React.Component {
 					{ this.props.settings.showSettings && 
 						<SimulatorSettings settings={this.props.settings}/>}
 				</div>
-
-				<h1>Simulation</h1>
-				<svg width={svgDim.width} height={svgDim.width}>
+				<svg class="k-sim-svg" width={svgDim.width} height={svgDim.width}>
 					<g class="layer-1-partitions"> {aComps} </g>
 					<g class="layer-2-producers">  </g>
 					<g class="layer-3-consumer"> {cComps} </g>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Simulator from './Simulator.js';
 
-
+import './App.css'
 class App extends Component {
 	constructor(props) {
 	  super(props)
@@ -13,9 +13,9 @@ class App extends Component {
 				partitionBalanceStrategy: 'round-robin',
 				showSettings: true,
 				layout: {
-					numProducers: 5,
-					numPartitions: 5,
-					numConsumers: 4
+					numProducers: 31,
+					numPartitions: 12,
+					numConsumers: 16
 				}
 			},
 		}
@@ -33,9 +33,6 @@ class App extends Component {
 		    <h1>k-sim: Kafka Failover/Throughput Simulator</h1>
 			<p>A simple simulator designed to explore bottlenecking and throughput scenarios.  Written with Kafka fundametnals in mind, there's no reason why this shouldn't apply to other queuing technologies.</p>
 			<Simulator {...{
-				// numProducers: this.state.layout.numProducers, 
-				// numPartitions: this.state.layout.numPartitions, 
-				// numConsumers: this.state.layout.numConsumers,
 				settings: this.state.settings
 			}} />
 		</div>
