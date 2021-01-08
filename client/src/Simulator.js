@@ -131,9 +131,9 @@ class Simulator extends React.Component {
 				let numRetries = 3 //newPartitions.length 
 				let r = 1
 				while ( (r < numRetries) && (demand > 0) ) {
-					demand = demand - n
-					destPartitionId += demand //+ p.producerId //"randomly" skip around
+					destPartitionId += Math.floor(Math.random()*newPartitions.length) //+ p.producerId //"randomly" skip around
 					destPartitionId = destPartitionId % newPartitions.length 
+					demand = demand - n
 					n = this.partitionAvailReceive(newPartitions[destPartitionId], demand)
 					if (n > 0) {
 						newPartitions[destPartitionId].maxOffset = newPartitions[destPartitionId].maxOffset + n
