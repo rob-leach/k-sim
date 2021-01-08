@@ -1,6 +1,6 @@
 import React from 'react';
 
-class ConsumerPartition extends React.Component {
+class ConsumerLagBubble extends React.Component {
 	constructor(props) {
 		super();
 		this.state = { };
@@ -13,10 +13,11 @@ class ConsumerPartition extends React.Component {
 
 		const fillColor = ( (this.props.lag > (this.props.consumeRate * 2)) ? lagColor : defaultColor )
 
-		const r = Math.max(5, Math.log(this.props.lag) * 7)
+		const bubbleFactor = this.props.bubbleSize / 3.3 //At 1,000 records, we will be close to max bubble size and gently grow to bubble size at 2k
+		const r = Math.max(5, Math.log(this.props.lag) * bubbleFactor)
 
 		//TODO: Make a shortener that does 12.1k vs 12100  (will matter more if we end up on big sizes)
-		const lagLabel = ( this.props.lag > 12 ? `p${this.props.partitionId}:${this.props.lag}` : '-' )
+		const lagLabel = ( this.props.lag > 12 ? `c${this.props.consumerId}:${this.props.lag}` : '-' )
 
 		return(
 			<React.Fragment>
@@ -26,12 +27,11 @@ class ConsumerPartition extends React.Component {
 				fill={fillColor}
 				stroke="black"
 				r={r} />
-
 			<text 
 				x={this.props.xPos} 
 				y={this.props.yPos}
-				dominant-baseline="middle"
-				text-anchor="middle">
+				dominantBaseline="middle"
+				textAnchor="middle">
 				{lagLabel}	
 			</text>
 			</React.Fragment>
@@ -40,8 +40,6 @@ class ConsumerPartition extends React.Component {
 		//<div>---p({this.props.partitionId}) lag: {this.props.lag} current: {this.props.currentOffset}  </div>
 	}
 }
-
-
 class Consumer extends React.Component {
 	constructor(props) {
 		super();
@@ -53,41 +51,48 @@ class Consumer extends React.Component {
 		let cId = this.props.c.consumerId
 		// Mathy bits for the actual stuff
 		let totalLag = 0
-		let totalOffsets = 0
+		//let totalOffsets = 0
 
-		// Graphy bits 
-		let gw = 100 //X Group Width
-		let gh = 600 //Group Height
-		let yPos = 40
-		let yIncr = (gw / 2)
-		let xPos = (gw / 6)
-		let xDiff = ( gw * 2 / 3)
-		let sign = -1
 		for (let myPartition of this.props.c.srcPartitions) {
 			let a = this.props.partitions[myPartition.partitionId]
+			let aR = this.props.partitionRectangles[myPartition.partitionId]
+
 			let lag = a.maxOffset - myPartition.currentOffset
 			totalLag += lag
-			totalOffsets += myPartition.currentOffset
-			aComps.push(<ConsumerPartition 
-				partitionId={myPartition.partitionId} 
-				currentOffset={myPartition.currentOffset}
-				lag={lag}
-				consumeRate={this.props.c.consumeRate}
-				xPos = {xPos}
-				yPos = {yPos}
-				 />) 
+			//totalOffsets += myPartition.currentOffset
 
-			sign *= -1
-			xPos += xDiff*sign
-			yPos += yIncr
+			
+			let yPos = aR.y + lag
+			aComps.push(
+				<React.Fragment>
+					<line
+						x1={aR.x - 5}
+						x2={aR.x + aR.width + 5}
+						y1={yPos}
+						y2={yPos}
+						stroke='purple'
+						strokeWidth="6" //TODO: Vary this based on the amount of records consumed perhaps?
+						/>
+				</React.Fragment>
+			)
 		}
 
+		//lag Component
+		let bubbleOffset = this.props.svgLayout.bubbleSize * (this.props.c.consumerId + .5) * 4
+		const lComp = <ConsumerLagBubble
+			xPos={this.props.svgLayout.tr.x + this.props.svgLayout.w / 2}
+			yPos={this.props.svgLayout.tr.y + bubbleOffset}
+			bubbleSize={this.props.svgLayout.bubbleSize} //Its a lie, but it's close enough
+			consumerId={this.props.c.consumerId}
+			lag={totalLag}
+		/>
+
+
+
 		return(
-			<g class="consumer-group" id={"consumer-" + cId} transform={`translate(${cId * gw} 0 )` }>
-				<text x="1" y={`${gh - 60}`}>L:{totalLag}</text>
-				<text x="1" y={`${gh - 40}`}>T:{totalOffsets}</text>
-				<text x="1" y={`${gh - 20}`}>Consumer-{cId}</text>
+			<g class="g-consumer" id={"consumer-" + cId}>
 				{aComps}
+				{lComp}
 			</g>
 		);
 	}

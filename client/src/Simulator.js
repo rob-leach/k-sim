@@ -4,7 +4,7 @@ import { cloneDeep } from "lodash" // Because I am a horrible monster who can't 
 
 import Producer from './Producer.js';
 import Partition from './Partition.js';
-import ConsumerLine from './ConsumerLine.js';
+import Consumer from './Consumer.js';
 import SimulatorSettings from './SimulatorSettings.js';
 
 import './Simulator.css'
@@ -128,18 +128,19 @@ class Simulator extends React.Component {
 			// 1d: rollforward overflow
 			if (demand > n) {
 				//console.log("retry for ", p)
-				let numRetries = newPartitions.length / 3
+				let numRetries = 3 //newPartitions.length 
 				let r = 1
 				while ( (r < numRetries) && (demand > 0) ) {
-					destPartitionId++
-					if(destPartitionId >= newPartitions.length) { destPartitionId = 0 }
 					demand = demand - n
+					destPartitionId += demand //+ p.producerId //"randomly" skip around
+					destPartitionId = destPartitionId % newPartitions.length 
 					n = this.partitionAvailReceive(newPartitions[destPartitionId], demand)
 					if (n > 0) {
 						newPartitions[destPartitionId].maxOffset = newPartitions[destPartitionId].maxOffset + n
 						newPartitions[destPartitionId].receivedThisTick = newPartitions[destPartitionId].receivedThisTick + n
 						p.backlog = p.backlog - n
 					}
+					r++
 				}
 			}
 			p.lastDestPartition = destPartitionId
@@ -272,10 +273,10 @@ class Simulator extends React.Component {
 
 		const finalState = {
 			tickNumber: 1,
-			maxTicks: 100,
+			maxTicks: (this.state.settings.maxTicks ? this.state.settings.maxTicks : 100),
 			running: false,
 			tickIntervalId: null,
-			tickMs: 150,
+			tickMs: Math.max(this.state.settings.tickMs, 50),
 			producers: initialProducers,
 			partitions: initialPartitions,
 			consumers: initialConsumers,
@@ -332,13 +333,20 @@ class Simulator extends React.Component {
 		}
 
 		const pComps = []
-		/* Skipping partition comps for now
 		let totalBacklog = 0
+		let producerSvgLayout = {
+			w: 100,
+			h: 400,
+			tr: {
+				x: 0, // Margin for label stuff should be zero?
+				y: 20,  // 
+			},
+			bubbleSize: (400 / this.state.producers.length / 4) //margin is the same as bubble size
+		}
 		for (const p of this.state.producers.values()) {
 			totalBacklog = totalBacklog + p.backlog
-			pComps.push(<Producer backlog={p.backlog} key={"Producer-"+p.producerId}/>)
+			pComps.push(<Producer p={p} svgLayout={producerSvgLayout} key={"Producer-"+p.producerId}/>)
 		}
-		*/
 
 		const cComps = []
 		let totalConsumed = 0
@@ -354,7 +362,7 @@ class Simulator extends React.Component {
 		}
 		for (const c of this.state.consumers.values()) {
 			totalConsumed = totalConsumed + c.totalOffsets
-			cComps.push(<ConsumerLine numConsumers={this.state.consumers.length} svgLayout={consumerSvgLayout} partitions={this.state.partitions} partitionRectangles={partitionRectangles} c={c} key={"Consumer-"+c.consumerId}/>)
+			cComps.push(<Consumer numConsumers={this.state.consumers.length} svgLayout={consumerSvgLayout} partitions={this.state.partitions} partitionRectangles={partitionRectangles} c={c} key={"Consumer-"+c.consumerId}/>)
 		}
 
 		return(
@@ -373,8 +381,17 @@ class Simulator extends React.Component {
 						<SimulatorSettings settings={this.props.settings}/>}
 				</div>
 				<svg class="k-sim-svg" width={svgDim.width} height={svgDim.width}>
-					<g class="layer-1-partitions"> {aComps} </g>
-					<g class="layer-2-producers">  </g>
+					<g class="layer-1-partitions"> 
+						{aComps} 
+					</g>
+					<g class="layer-2-producers">
+						<text x={producerSvgLayout.tr.x} y={producerSvgLayout.tr.y}
+							dominantBaseline="middle" textAnchor="left"
+							textLength={producerSvgLayout.w}> 
+						Producer Backlog
+						</text>
+						{pComps}
+					</g>
 					<g class="layer-3-consumer"> 
 						<text x={consumerSvgLayout.tr.x} y={consumerSvgLayout.tr.y}
 							dominantBaseline="middle" textAnchor="left"

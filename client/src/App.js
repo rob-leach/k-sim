@@ -7,16 +7,18 @@ class App extends Component {
 	  super(props)
 		this.state = { 
 			settings: {
-				producer: { backlog: 9, createRate: 3, produceRate: 3 },
-				partition: { maxReceiveRate: 11, maxTransmitRate: 11 },
+				producer: { backlog: 450, createRate: 0, produceRate: 15 },
+				partition: { maxReceiveRate: 3, maxTransmitRate: 3 },
 				consumer: { consumeRate: 5 },
 				partitionBalanceStrategy: 'round-robin',
 				showSettings: true,
 				layout: {
-					numProducers: 12,
-					numPartitions: 8,
-					numConsumers: 6
-				}
+					numProducers: 3,
+					numPartitions: 7,
+					numConsumers: 4
+				},
+				maxTicks: 200,
+				tickMs: 66
 			},
 		}
 	}
