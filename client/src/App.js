@@ -14,7 +14,7 @@ class App extends Component {
 				showSettings: true,
 				layout: {
 					numProducers: 3,
-					numPartitions: 7,
+					numPartitions: 4,
 					numConsumers: 3
 				},
 				maxTicks: 200,
