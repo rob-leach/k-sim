@@ -287,23 +287,28 @@ class Simulator extends React.Component {
 			initialConsumers.push({...newConsumer, ...this.state.settings.consumer})
 		}
 
-		const finalState = {
+		const generalDefaults = {
 			tickNumber: 1,
-			maxTicks: (this.state.settings.maxTicks ? this.state.settings.maxTicks : 100),
+			maxTicks: 100,
+			tickMs: 150
+		}
+
+		const finalState = {
 			running: false,
 			tickIntervalId: null,
-			tickMs: Math.max(this.state.settings.tickMs, 50),
+			initialized: true,
 			producers: initialProducers,
 			partitions: initialPartitions,
-			consumers: initialConsumers,
-			initialized: true
+			consumers: initialConsumers
 		}
 
 		console.log("Initialized simulator with this state:")
 		console.log(finalState)
 		this.setState({
 			...this.state,
-			...finalState
+			...finalState,
+			...generalDefaults,
+			...this.state.settings.general
 		});
 		//TODO
 
@@ -384,15 +389,14 @@ class Simulator extends React.Component {
 		return(
 			<div class="k-sim">
 				<div class="k-sim-control"> 
-					{this.state.running ? 'run' : 'STOP'} 
-					({this.state.tickNumber}/{this.state.maxTicks}) 
 					{ this.state.running && 
-						<button onClick = {() => this.stopSimulator()}>STOP</button>}
+						<button class="playback" onClick = {() => this.stopSimulator()}>stop</button>}
 					{ this.state.initialized && 
 						( this.state.running || 
-						<button onClick = {() => this.resumeSimulator()}>resume</button>)}
+						<button class="playback" onClick = {() => this.resumeSimulator()}>play</button>)}
 					{ this.state.running ||
-						<button onClick = {() => this.initializeSimulator()}>INIT</button>}
+						<button class="playback" onClick = {() => this.initializeSimulator()}>init</button>}
+					<br/>(tick: {this.state.tickNumber}/{this.state.maxTicks}) 
 					{ this.props.settings.showSettings && 
 						<SimulatorSettings settings={this.props.settings}/>}
 				</div>
