@@ -18,7 +18,7 @@ class App extends Component {
 				partitionBalanceStrategy: 'round-robin',
 				general: {
 					tickNumber: 1,
-					maxTicks: 10,
+					maxTicks: 10000,
 					tickMs: 66
 				},
 				showSettings: true

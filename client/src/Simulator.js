@@ -146,7 +146,7 @@ class Simulator extends React.Component {
 				let o = newConsumerGroup.offsets[aId]
 
 				let avail = (newPartitions[aId].maxOffset - o.currentOffset)
-				console.log(`consume(${cId}) a(${aId}) avail: ${avail} o:`, o)
+				//console.log(`consume(${cId}) a(${aId}) avail: ${avail} o:`, o)
 				if (avail < 0) { 
 					// Shouldn't be here!
 					//console.log("ERROR: Consumer {c} on {p} is in an impossible place?")
@@ -313,14 +313,31 @@ class Simulator extends React.Component {
 		return newArr
 	}
 
-	deletePartitionsFromConsumerGroup(partitionsDeleted, consumerGroup) {
+	deletePartitionsFromConsumerGroup(partitionsDeleted, newPartitions, consumerGroup) {
 		let indexesToDelete = [...partitionsDeleted].sort((a,b)=>a-b)
 
-		let newConsumerGroup = {
-			...consumerGroup,
-			partitionMapping: this.deleteIndexesFromArray(indexesToDelete, consumerGroup.partitionMapping),
-			offsets: this.deleteIndexesFromArray(indexesToDelete, consumerGroup.offsets)
+		let newOffsets = []
+
+		let delPtr = 0
+		for (let oldPtr = 0; oldPtr < consumerGroup.offsets.length ; oldPtr++ ) {
+			if (!(indexesToDelete[delPtr] === oldPtr)) {
+				let o = consumerGroup.offsets[oldPtr]
+				o.partitionId -= delPtr // Need to shift the partition IDs downward for each thing deleted so far.
+				newOffsets.push(o)
+			} else {
+				delPtr++
+			}
 		}
+
+		let newConsumerGroup = {
+			...this.consumerGroupRebalance(
+				this.state.settings.partitionBalanceStrategy, 
+				newPartitions,
+				this.state.consumers,
+				consumerGroup),
+			offsets: newOffsets
+		}
+
 		return newConsumerGroup
 	}
 
@@ -334,17 +351,20 @@ class Simulator extends React.Component {
 		this.setState({
 			...this.state,
 			partitions: newPartitions,
-			consumerGroup: this.deletePartitionsFromConsumerGroup(partitionsDeleted, this.state.consumerGroup)
+			consumerGroup: this.deletePartitionsFromConsumerGroup(partitionsDeleted, newPartitions, this.state.consumerGroup)
 		})
 	}
 
 	//NOTE: This handler will mutate both partitions and consumerGroup in the state
 	createPartitions(n){
 		let newPartitions = cloneDeep(this.state.partitions)
+		let newOffsets = cloneDeep(this.state.consumerGroup.offsets)
+		// console.log("before making partitions...", this.state)
 
 		let finalLength = this.state.partitions.length + n
 		for (let aId = this.state.partitions.length; aId < finalLength; aId++) {
 			newPartitions.push(this.makePartition(aId))
+			newOffsets.push({partitionId: aId, currentOffset: 0}) //TODO: Consider leaving this for rebalance?
 		}
 
 		let newConsumerGroup = this.consumerGroupRebalance(
@@ -353,10 +373,34 @@ class Simulator extends React.Component {
 				this.state.consumers,
 				this.state.consumerGroup
 			)
+		newConsumerGroup.offsets = newOffsets
 
+		// console.log("created partitions...", newPartitions, newConsumerGroup)
 		this.setState({
 			...this.state,
 			partitions: newPartitions, 
+			consumerGroup: newConsumerGroup
+		})
+	}
+
+	//NOTE: This handler will mutate both consumers and consumerGroup in the state
+	createConsumers(n){
+		let newConsumers = cloneDeep(this.state.consumers)
+
+		let finalLength = this.state.consumers.length + n
+		for (let cId = this.state.consumers.length; cId < finalLength; cId++) {
+			newConsumers.push(this.makeConsumer(cId))
+		}
+
+		let newConsumerGroup = this.consumerGroupRebalance(
+				'round-robin', 
+				this.state.partitions,
+				newConsumers,
+				this.state.consumerGroup)
+
+		this.setState({
+			...this.state,
+			consumers: newConsumers,
 			consumerGroup: newConsumerGroup
 		})
 	}
@@ -456,18 +500,7 @@ class Simulator extends React.Component {
 							this.createPartitions(1)
 							break;
 						case 'consumer':
-								let cId = this.state.consumers.length
-
-								let addedConsumerData = {
-									consumers: this.consumerGroupRebalance(
-										'round-robin', 
-										this.state.partitions,
-										this.state.consumers.concat([this.makeConsumer(cId)]))
-								}
-								this.setState({
-									...this.state,
-									...addedConsumerData
-								})
+							this.createConsumers(1)
 							break;
 						default:
 							console.log('Invalid Sim Mutate Type')			
@@ -478,6 +511,66 @@ class Simulator extends React.Component {
 				case 'update':
 					break;
 				case 'delete':
+					switch(action['simType']){
+						case 'producer':
+							let delIdx = this.state.producers.length - 1 //Maximum valid producer, and the default
+							if ( action['id'] < delIdx && 
+								action['id'] >= 0 ) {
+									delIdx = action['id'] //BUG: Not forcing to int
+								}
+							let newProducers = []
+							let newIdx = 0
+							for (let pIdx = 0; pIdx < this.state.producers.length; pIdx++) {
+								if (pIdx === delIdx) {
+									//pass
+								} else {
+									newProducers.push({
+										...this.state.producers[pIdx],
+										producerId: newIdx
+									})
+									newIdx++
+								}
+							}
+							//console.log("done removing", this.state.producers, newProducers)
+							this.setState({
+								...this.state,
+								producers: newProducers
+							})
+							break;
+						case 'partition':
+							let aDelIdx = this.state.partitions.length - 1 //Maximum valid producer, and the default
+							if ( action['id'] < aDelIdx && 
+								action['id'] >= 0 ) {
+									aDelIdx = action['id'] //BUG: Not forcing to int
+								}
+							this.deletePartitions([aDelIdx])
+							break;
+						case 'consumer':
+							break;
+						default:
+							console.log('Invalid Sim Mutate Type')			
+					}	
+					break;
+				case 'chaos': //Handy dandy tester of your architecture and our code!  Dispatches random supported actions of each type.
+					for (let chaosRun = 0; chaosRun < action['count']; chaosRun++) {
+						switch(Math.floor(Math.random() * 5)){
+							case 0:
+								this.simMutate([{actionType: 'create', simType: 'producer'}])
+								break;
+							case 1:
+								this.simMutate([{actionType: 'create', simType: 'partition'}])
+								break;
+							case 2:
+								this.simMutate([{actionType: 'create', simType: 'consumer'}])
+								break;
+							case 3:
+								this.simMutate([{actionType: 'delete', simType: 'producer', id: Math.floor(Math.random() * this.state.producers.length)}])
+								break;
+							case 4:
+								this.simMutate([{actionType: 'delete', simType: 'partition', id: Math.floor(Math.random() * this.state.partitions.length)}])
+								break;
+						}
+					}
 					break;
 				default:
 					console.log('Invalid Sim Mutate Action Type')			
