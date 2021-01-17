@@ -367,6 +367,7 @@ class Simulator extends React.Component {
 			newOffsets.push({partitionId: aId, currentOffset: 0}) //TODO: Consider leaving this for rebalance?
 		}
 
+		//TODO: This is an interesting thing, should we instantly rebalance the consumerGroup?
 		let newConsumerGroup = this.consumerGroupRebalance(
 				this.state.settings.partitionBalanceStrategy, 
 				newPartitions,
@@ -379,6 +380,25 @@ class Simulator extends React.Component {
 		this.setState({
 			...this.state,
 			partitions: newPartitions, 
+			consumerGroup: newConsumerGroup
+		})
+	}
+
+	//NOTE: This handler will mutate both consumers consumeGroup in the state
+	deleteConsumers(consumersDeleted){
+		let indexesToDelete = [...consumersDeleted].sort((a,b)=>a-b)
+		let newConsumers=this.deleteIndexesFromArray(indexesToDelete, this.state.consumers)
+
+		//TODO: This is an interesting thing, should we instantly rebalance the consumerGroup?
+		let newConsumerGroup = this.consumerGroupRebalance(
+				this.state.settings.partitionBalanceStrategy,
+				this.state.partitions, 
+				newConsumers, 
+				this.state.consumerGroup)
+
+		this.setState({
+			...this.state,
+			consumers: newConsumers,
 			consumerGroup: newConsumerGroup
 		})
 	}
@@ -546,6 +566,12 @@ class Simulator extends React.Component {
 							this.deletePartitions([aDelIdx])
 							break;
 						case 'consumer':
+							let cDelIdx = this.state.consumers.length - 1 //Maximum valid producer, and the default
+							if ( action['id'] < cDelIdx && 
+								action['id'] >= 0 ) {
+									cDelIdx = action['id'] //BUG: Not forcing to int
+								}
+							this.deleteConsumers([cDelIdx])
 							break;
 						default:
 							console.log('Invalid Sim Mutate Type')			
@@ -553,7 +579,7 @@ class Simulator extends React.Component {
 					break;
 				case 'chaos': //Handy dandy tester of your architecture and our code!  Dispatches random supported actions of each type.
 					for (let chaosRun = 0; chaosRun < action['count']; chaosRun++) {
-						switch(Math.floor(Math.random() * 5)){
+						switch(Math.floor(Math.random() * 6)){
 							case 0:
 								this.simMutate([{actionType: 'create', simType: 'producer'}])
 								break;
@@ -568,6 +594,9 @@ class Simulator extends React.Component {
 								break;
 							case 4:
 								this.simMutate([{actionType: 'delete', simType: 'partition', id: Math.floor(Math.random() * this.state.partitions.length)}])
+								break;
+							case 5:
+								this.simMutate([{actionType: 'delete', simType: 'consumer', id: Math.floor(Math.random() * this.state.consumers.length)}])
 								break;
 						}
 					}
