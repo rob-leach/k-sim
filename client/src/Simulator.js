@@ -18,7 +18,7 @@ class Simulator extends React.Component {
 			producers: [],
 			partitions: [],
 			consumers: [],
-			consumerGoup: {}
+			consumerGroup: {}
 		}
 		this.initializeSimulator()
 	}
