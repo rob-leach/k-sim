@@ -502,7 +502,7 @@ class Simulator extends React.Component {
 	}
 
 	simMutate(payload){
-		// console.log('Incoming payload:', payload)
+		console.log('simMutate Incoming payload:', payload)
 		for(let action of payload.values()) {
 			switch(action['actionType']){
 				case 'create':
@@ -601,6 +601,12 @@ class Simulator extends React.Component {
 								break;
 						}
 					}
+					break;
+				case 'unselect':
+					this.setState({
+						...this.state,
+						selectedObj: null
+					})
 					break;
 				default:
 					console.log('Invalid Sim Mutate Action Type')			
@@ -712,7 +718,10 @@ class Simulator extends React.Component {
 						{cComps} 
 					</g>
 				</svg>
-				<SimulatorContext simMutate={(p)=>{this.simMutate(p)}} state={this.state} />
+				<SimulatorContext 
+					simMutate={(p)=>{this.simMutate(p)}} 
+					state={this.state} 
+					/>
 			</div>
 		);
 	}
