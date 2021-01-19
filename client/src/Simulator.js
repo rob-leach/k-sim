@@ -304,9 +304,12 @@ class Simulator extends React.Component {
 		let newArr = []
 
 		let delPtr = 0
+		let pushedIndex = 0
 		for (let oldPtr = 0; oldPtr < arr.length ; oldPtr++ ) {
 			if (!(sortedIndexes[delPtr] === oldPtr)) {
+				arr[oldPtr].partitionId = pushedIndex
 				newArr.push(arr[oldPtr])
+				pushedIndex++
 			} else {
 				delPtr++
 			}
@@ -686,6 +689,7 @@ class Simulator extends React.Component {
 
 			rectX += partitionSvgLayout.rectMargin + partitionSvgLayout.rectWidth
 		}
+
 
 		const pComps = []
 		let totalBacklog = 0
