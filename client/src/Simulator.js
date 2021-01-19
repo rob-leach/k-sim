@@ -343,17 +343,25 @@ class Simulator extends React.Component {
 	}
 
 	//NOTE: This handler will mutate both partitions and consumerGroup in the state
-	deletePartitions(partitionsDeleted){
+	deletePartitions(partitionsDeleted, unselect){
 		let indexesToDelete = [...partitionsDeleted].sort((a,b)=>a-b)
 		let newPartitions=this.deleteIndexesFromArray(indexesToDelete, this.state.partitions)
 
 		//TODO: This is an interesting thing, should we instantly rebalance for the consumerGroup?
-
-		this.setState({
-			...this.state,
-			partitions: newPartitions,
-			consumerGroup: this.deletePartitionsFromConsumerGroup(partitionsDeleted, newPartitions, this.state.consumerGroup)
-		})
+		if (unselect) {
+			this.setState({
+				...this.state,
+				partitions: newPartitions,
+				consumerGroup: this.deletePartitionsFromConsumerGroup(partitionsDeleted, newPartitions, this.state.consumerGroup),
+				selectedObj: null
+			})
+		} else {
+			this.setState({
+				...this.state,
+				partitions: newPartitions,
+				consumerGroup: this.deletePartitionsFromConsumerGroup(partitionsDeleted, newPartitions, this.state.consumerGroup)
+			})
+		}
 	}
 
 	//NOTE: This handler will mutate both partitions and consumerGroup in the state
@@ -386,7 +394,7 @@ class Simulator extends React.Component {
 	}
 
 	//NOTE: This handler will mutate both consumers consumeGroup in the state
-	deleteConsumers(consumersDeleted){
+	deleteConsumers(consumersDeleted, unselect){
 		let indexesToDelete = [...consumersDeleted].sort((a,b)=>a-b)
 		let newConsumers=this.deleteIndexesFromArray(indexesToDelete, this.state.consumers)
 
@@ -397,11 +405,20 @@ class Simulator extends React.Component {
 				newConsumers, 
 				this.state.consumerGroup)
 
-		this.setState({
-			...this.state,
-			consumers: newConsumers,
-			consumerGroup: newConsumerGroup
-		})
+		if (unselect) {
+			this.setState({
+				...this.state,
+				consumers: newConsumers,
+				consumerGroup: newConsumerGroup,
+				selectedObj: null
+			})
+		} else {
+			this.setState({
+				...this.state,
+				consumers: newConsumers,
+				consumerGroup: newConsumerGroup
+			})
+		}
 	}
 
 	//NOTE: This handler will mutate both consumers and consumerGroup in the state
@@ -553,10 +570,19 @@ class Simulator extends React.Component {
 								}
 							}
 							//console.log("done removing", this.state.producers, newProducers)
-							this.setState({
-								...this.state,
-								producers: newProducers
-							})
+							//HACK:  This needs a much better way to handle unselect
+							if (action['unselect']) {
+								this.setState({
+									...this.state,
+									producers: newProducers,
+									selectedObj: null
+								})
+							} else {
+								this.setState({
+									...this.state,
+									producers: newProducers
+								})
+							}
 							break;
 						case 'partition':
 							let aDelIdx = this.state.partitions.length - 1 //Maximum valid producer, and the default
@@ -564,7 +590,7 @@ class Simulator extends React.Component {
 								action['id'] >= 0 ) {
 									aDelIdx = action['id'] //BUG: Not forcing to int
 								}
-							this.deletePartitions([aDelIdx])
+							this.deletePartitions([aDelIdx], action['unselect'])
 							break;
 						case 'consumer':
 							let cDelIdx = this.state.consumers.length - 1 //Maximum valid producer, and the default
@@ -572,7 +598,7 @@ class Simulator extends React.Component {
 								action['id'] >= 0 ) {
 									cDelIdx = action['id'] //BUG: Not forcing to int
 								}
-							this.deleteConsumers([cDelIdx])
+							this.deleteConsumers([cDelIdx], action['unselect'])
 							break;
 						default:
 							console.log('Invalid Sim Mutate Type')			
@@ -580,6 +606,7 @@ class Simulator extends React.Component {
 					break;
 				case 'chaos': //Handy dandy tester of your architecture and our code!  Dispatches random supported actions of each type.
 					for (let chaosRun = 0; chaosRun < action['count']; chaosRun++) {
+
 						switch(Math.floor(Math.random() * 6)){
 							case 0:
 								this.simMutate([{actionType: 'create', simType: 'producer'}])
@@ -591,13 +618,13 @@ class Simulator extends React.Component {
 								this.simMutate([{actionType: 'create', simType: 'consumer'}])
 								break;
 							case 3:
-								this.simMutate([{actionType: 'delete', simType: 'producer', id: Math.floor(Math.random() * this.state.producers.length)}])
+								this.simMutate([{actionType: 'delete', simType: 'producer', id: Math.floor(Math.random() * this.state.producers.length), unselect: true}])
 								break;
 							case 4:
-								this.simMutate([{actionType: 'delete', simType: 'partition', id: Math.floor(Math.random() * this.state.partitions.length)}])
+								this.simMutate([{actionType: 'delete', simType: 'partition', id: Math.floor(Math.random() * this.state.partitions.length), unselect: true}])
 								break;
 							case 5:
-								this.simMutate([{actionType: 'delete', simType: 'consumer', id: Math.floor(Math.random() * this.state.consumers.length)}])
+								this.simMutate([{actionType: 'delete', simType: 'consumer', id: Math.floor(Math.random() * this.state.consumers.length), unselect: true}])
 								break;
 						}
 					}

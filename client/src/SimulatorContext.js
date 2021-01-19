@@ -48,11 +48,11 @@ class SimulatorContext extends React.Component {
 				<button onClick={() => this.props.simMutate([
 					{ actionType: 'delete', 
 						simType: simType,
-						id: id
-					},
-					{ actionType: 'unselect' }
+						id: id,
+						unselect: true
+					}
 				]
-				)}>D, U</button>
+				)}>Delete w/unselect</button>
 			</React.Fragment>
             }
             </div>
