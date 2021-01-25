@@ -1,0 +1,320 @@
+{
+    "clusters": {
+        "byId" : {
+            "c0": {
+                "id": "c0",
+                "name": "my-cluster",
+                "brokers": ["c0b0", "c0b1", "c0b2" ],
+                "topics": ["c0t0", "c0t1" ],
+                "nextTopicId": 2
+            }
+        }
+    },
+    "topics": {
+        "byId": {
+            "c0t0": {
+                "id": "c0t0",
+                "clusterId": "c0",
+                "name": "my.topic",
+                "numPartitions": 3,
+                "numReplicas": 2,
+                "partitions": ["c0t0p0", "c0t0p1", "c0t0p2"]
+            },
+            "c0t1": {
+                "id": "c0t1",
+                "clusterId": "c0",
+                "name": "my.other.topic",
+                "numPartitions": 1,
+                "numReplicas": 3,
+                "partitions": ["c0t1p0"]
+            }
+        }
+    },
+    "partitions": {
+        "byId": {
+            "c0t0p0": {
+                "id": "c0t0p0",
+                "topicId": "c0t0",
+                "replicas": ["c0t0p0r0", "c0t0p0r1"]
+            },
+            "c0t0p1": {
+                "id": "c0t0p1",
+                "topicId": "c0t0",
+                "replicas": ["c0t0p1r0", "c0t0p1r1"]
+            },
+            "c0t0p2": {
+                "id": "c0t0p2",
+                "topicId": "c0t0",
+                "replicas": ["c0t0p2r0", "c0t0p2r1"]
+            },
+            "c0t1p0": {
+                "id": "c0t1p0",
+                "topicId": "c0t1",
+                "replicas": ["c0t1p0r0", "c0t1p0r1", "c0t1p0r2" ]
+            }
+        }
+    },
+    "brokers": {
+        "byId": {
+            "c0b0": {
+                "id": "c0b0",
+                "clusterId": "c0",
+                "replicas": [
+                    "c0t0p0r0",
+                    "c0t0p1r1",
+                    "c0t1p0r0"
+                ]
+            },
+            "c0b1": {
+                "id": "c0b1",
+                "clusterId": "c0",
+                "replicas": [
+                    "c0t0p0r1",
+                    "c0t0p2r0",
+                    "c0t1p0r1"
+                ]
+            },
+            "c0b2": {
+                "id": "c0b2",
+                "clusterId": "c0",
+                "replicas": [
+                    "c0t0p1r0",
+                    "c0t0p2r1",
+                    "c0t1p0r2"
+                ]
+            }
+        }
+    },
+    "replicas": {
+        "byId": {
+            "c0t0p0r0": {
+                "id": "c0t0p0r0",
+                "brokerId": "c0b0",
+                "partitionId": "c0t0p0",
+                "maxOffset": 12,
+                "minOffset": 0
+            },
+            "c0t0p0r1": {
+                "id": "c0t0p0r1",
+                "brokerId": "c0b1",
+                "partitionId": "c0t0p0",
+                "maxOffset": 10,
+                "minOffset": 0
+            },
+            "c0t0p1r0": {
+                "id": "c0t0p1r0",
+                "brokerId": "c0b2",
+                "partitionId": "c0t0p1",
+                "maxOffset": 13,
+                "minOffset": 0
+            },
+            "c0t0p1r1": {
+                "id": "c0t0p1r1",
+                "brokerId": "c0b0",
+                "partitionId": "c0t0p1",
+                "maxOffset": 13,
+                "minOffset": 0
+            },
+            "c0t0p2r0": {
+                "id": "c0t0p2r0",
+                "brokerId": "c0b1",
+                "partitionId": "c0t0p2",
+                "maxOffset": 11,
+                "minOffset": 0
+            },
+            "c0t0p2r1": {
+                "id": "c0t0p2r1",
+                "brokerId": "c0b2",
+                "partitionId": "c0t0p2",
+                "maxOffset": 11,
+                "minOffset": 0
+            },
+            "c0t1p0r0": {
+                "id": "c0t1p0r0",
+                "brokerId": "c0b0",
+                "partitionId": "c0t1p0",
+                "maxOffset": 18,
+                "minOffset": 0
+            },
+            "c0t1p0r1": {
+                "id": "c0t1p0r1",
+                "brokerId": "c0b1",
+                "partitionId": "c0t1p0",
+                "maxOffset": 18,
+                "minOffset": 0
+            },
+            "c0t1p0r2": {
+                "id": "c0t1p0r2",
+                "brokerId": "c0b2",
+                "partitionId": "c0t1p0",
+                "maxOffset": 15,
+                "minOffset": 0
+            }
+        }
+    },
+    "instances": {
+        "byId": {
+            "i0": {
+                "id": "i0",
+                "name": "simpleProducer-i0",
+                "type": "simpleProducer",
+                "source": {
+                    "type": "simpleSource",
+                    "rateLimit": 4
+                },
+                "drain": {
+                    "type": "topic",
+                    "id": "c0t0",
+                    "rateLimit": -1
+                },
+                "perfData": {
+                    "capacity": 10,
+                    "availCap": 2
+                },
+                "backlog": {
+                    "backlog": 0,
+                    "dropped": 0,
+                    "maxBacklog": 100
+                }
+            },
+            "i1": {
+                "id": "i1",
+                "name": "simpleProducer-i1",
+                "type": "simpleProducer",
+                "source": {
+                    "type": "simpleSource",
+                    "rateLimit": 2
+                },
+                "drain": {
+                    "type": "topic",
+                    "id": "c0t1",
+                    "rateLimit": -1
+                },
+                "perfData": {
+                    "capacity": 6,
+                    "availCap": 2
+                },
+                "backlog": {
+                    "backlog": 0,
+                    "dropped": 0,
+                    "maxBacklog": 100
+                }
+            },
+            "i2": {
+                "id": "i2",
+                "name": "simpleConsumer-i2",
+                "type": "simpleConsumer",
+                "source": {
+                    "type": "topic",
+                    "id": "c0t0",
+                    "groupId": "g0",
+                    "rateLimit": -1
+                },
+                "drain": {
+                    "type": "simpleDrain",
+                    "rateLimit": 6
+                },
+                "perfData": {
+                    "capacity": 6,
+                    "availCap": 0
+                },
+                "backlog": {
+                    "backlog": 0,
+                    "dropped": 0,
+                    "maxBacklog": 100
+                }
+            },
+            "i3": {
+                "id": "i3",
+                "name": "simpleConsumer-i3",
+                "type": "simpleConsumer",
+                "source": {
+                    "type": "topic",
+                    "id": "c0t0",
+                    "groupId": "g0",
+                    "rateLimit": -1
+                },
+                "drain": {
+                    "type": "simpleDrain",
+                    "rateLimit": 6
+                },
+                "perfData": {
+                    "capacity": 6,
+                    "availCap": 0
+                },
+                "backlog": {
+                    "backlog": 0,
+                    "dropped": 0,
+                    "maxBacklog": 100
+                }
+            },
+            "i4": {
+                "id": "i4",
+                "name": "simpleConsumer-i4",
+                "type": "simpleConsumer",
+                "source": {
+                    "type": "topic",
+                    "id": "c0t1",
+                    "groupId": "g1",
+                    "rateLimit": -1
+                },
+                "drain": {
+                    "type": "simpleDrain",
+                    "rateLimit": 6
+                },
+                "perfData": {
+                    "capacity": 4,
+                    "availCap": 0
+                },
+                "backlog": {
+                    "backlog": 0,
+                    "dropped": 0,
+                    "maxBacklog": 100
+                }
+            }
+        }
+    },
+    "groups": {
+        "byId": {
+            "g0": {
+                "id": "g0",
+                "topicMapping": {
+                    "t0": {
+                        "p0": {
+                            "instanceId": "i2",
+                            "offset": 13
+                        },
+                        "p1": {
+                            "instanceId": "i3",
+                            "offset": 12
+                        },
+                        "p2": {
+                            "instanceId": "i2",
+                            "offset": 11
+                        }
+                    }
+                }
+            },
+            "g1": {
+                "id": "g1",
+                "topicMapping": {
+                    "t1": {
+                        "p0": {
+                            "instanceId": "i4",
+                            "offset": 18
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "systemStats": {
+        "totalSourced": 54,
+        "totalDrained": 54,
+        "totalReplicated": 57, 
+        "totalTicks": 9,
+        "totalRequestedCapacity": 306,
+        "totalUnusedCapacity": 36,
+        "totalUsedCapacity": 270
+    }
+}
