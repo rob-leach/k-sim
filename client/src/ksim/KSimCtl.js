@@ -12,7 +12,7 @@ class KSimCtl extends Component {
 
     render() {
   	return (
-    <div class="k-sim-ctl">
+    <div className="k-sim-ctl">
       Simulation Control
 	</div>
     );

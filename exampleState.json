@@ -18,7 +18,8 @@
                 "name": "my.topic",
                 "numPartitions": 3,
                 "numReplicas": 2,
-                "partitions": ["c0t0p0", "c0t0p1", "c0t0p2"]
+                "partitions": ["c0t0p0", "c0t0p1", "c0t0p2"],
+                "nextPartitionId": 3
             },
             "c0t1": {
                 "id": "c0t1",
@@ -157,7 +158,6 @@
             "i0": {
                 "id": "i0",
                 "name": "simpleProducer-i0",
-                "type": "simpleProducer",
                 "source": {
                     "type": "simpleSource",
                     "rateLimit": 4
@@ -180,7 +180,6 @@
             "i1": {
                 "id": "i1",
                 "name": "simpleProducer-i1",
-                "type": "simpleProducer",
                 "source": {
                     "type": "simpleSource",
                     "rateLimit": 2
@@ -203,11 +202,9 @@
             "i2": {
                 "id": "i2",
                 "name": "simpleConsumer-i2",
-                "type": "simpleConsumer",
                 "source": {
-                    "type": "topic",
-                    "id": "c0t0",
-                    "groupId": "g0",
+                    "type": "group",
+                    "id": "g0",
                     "rateLimit": -1
                 },
                 "drain": {
@@ -227,10 +224,8 @@
             "i3": {
                 "id": "i3",
                 "name": "simpleConsumer-i3",
-                "type": "simpleConsumer",
                 "source": {
-                    "type": "topic",
-                    "id": "c0t0",
+                    "type": "group",
                     "groupId": "g0",
                     "rateLimit": -1
                 },
@@ -251,10 +246,8 @@
             "i4": {
                 "id": "i4",
                 "name": "simpleConsumer-i4",
-                "type": "simpleConsumer",
                 "source": {
-                    "type": "topic",
-                    "id": "c0t1",
+                    "type": "group",
                     "groupId": "g1",
                     "rateLimit": -1
                 },
@@ -279,7 +272,7 @@
             "g0": {
                 "id": "g0",
                 "topicMapping": {
-                    "t0": {
+                    "c0t0": {
                         "p0": {
                             "instanceId": "i2",
                             "offset": 13
@@ -293,18 +286,22 @@
                             "offset": 11
                         }
                     }
-                }
+                },
+                "consumers": [ "i2", "i3" ],
+                "topics": [ "c0t0" ]
             },
             "g1": {
                 "id": "g1",
                 "topicMapping": {
-                    "t1": {
+                    "c0t1": {
                         "p0": {
                             "instanceId": "i4",
                             "offset": 18
                         }
                     }
-                }
+                },
+                "consumers": [ "i4" ],
+                "topics": [ "c0t1" ]
             }
         }
     },

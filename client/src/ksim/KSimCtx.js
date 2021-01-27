@@ -12,7 +12,7 @@ class KSimCtx extends Component {
 
     render() {
   	return (
-    <div class="k-sim-ctx">
+    <div className="k-sim-ctx">
       Contextual Browser (WIP)
 	</div>
     );

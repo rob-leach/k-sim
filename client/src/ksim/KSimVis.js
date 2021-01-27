@@ -12,8 +12,9 @@ class KSimVis extends Component {
 
     render() {
   	return (
-    <div class="k-sim-vis">
+    <div className="k-sim-vis">
       Simulation Viewer
+      <pre>{JSON.stringify(this.props.sim, null, 4)}</pre>
 	</div>
     );
   }

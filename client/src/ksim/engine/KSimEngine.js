@@ -8,8 +8,8 @@ export const newSim = () => {
         "partitions": { "byId": {}, "ids": []  },  //do not global id num
         "brokers":    { "byId": {}, "ids": [], "nextId": 0 }, // Globally unique bX  (not required, but easy)
         "replicas":   { "byId": {}, "ids": []  },  //do not global id num
-        "instances":  { "byId": {}, "ids": [], "nextId": 0 }, // Globally unique iX  
         "groups":     { "byId": {}, "ids": [], "nextId": 0 }, // Globally unique gX  (not required, but easy)
+        "instances":  { "byId": {}, "ids": [], "nextId": 0 }, // Globally unique iX  
 
         "systemStats": {  // TODO: Consider a function that yields an empty systemStats state?
             "totalSourced": 0,

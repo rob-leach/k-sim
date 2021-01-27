@@ -27,7 +27,7 @@ class KSim extends Component {
 
     render() {
   	return (
-    <div class="k-sim">
+    <div className="k-sim">
       <KSimCtl sim={this.state.sim}/>
       <KSimVis sim={this.state.sim}/>
       <KSimCtx selection={this.state.sim.selection}/>

@@ -1,6 +1,7 @@
 import { cloneDeep, has } from "lodash"
 import { hasRequiredKeys } from "../utils/utils.js"
 import { makeReplicaPlacement } from "./cluster.js"
+import { groupRebalanceTopic } from "./group.js"
 
 export const applyActions = (sim, actions) => {
 
@@ -22,15 +23,32 @@ export const applyAction = (sim, action) => {
     switch (action.action) {
         case 'addCluster':
             return(addCluster(sim, action.payload))
+
         case 'addBroker':
             return(addBroker(sim, action.payload))
+            
         case 'addTopic':
             return(addTopic(sim, action.payload))
+            
         case 'addPartition':
             return(addPartition(sim, action.payload))
+            
         case 'addReplica':
             console.log(`applyAction(${action.action}) is indirectly perfomed by adding partitions`)
             return(sim)
+            
+        case 'addGroup':
+            return(addGroup(sim, action.payload))
+
+        case 'addInstance':
+            return(addInstance(sim, action.payload))
+            
+        case 'addSource':
+            return(addSource(sim, action.payload))
+            
+        case 'addDrain':
+            return(addDrain(sim, action.payload))
+            
         default:
             console.log(`applyAction(${action.action}) is unsupported`)
             return(sim)
@@ -117,6 +135,7 @@ export const addTopic = (sim, payload) => {
 }
 
 // NOTE: Adding P partitions also adds (P*numReplicas) replicas
+// FIXME: Adding partitions needs to refresh subscribing consumer groups
 export const addPartition = (sim, payload) => {
     // const requiredKeys = [ ]
     // const myFuncName = 'addPartition'
@@ -162,6 +181,135 @@ export const addPartition = (sim, payload) => {
 
     updatedSim.topics.byId[tId].partitions.push(pId)
     updatedSim.topics.byId[tId].nextPartitionId++
+
+    return(updatedSim)
+}
+
+export const addGroup = (sim, payload) => {
+    // const requiredKeys = [ ]
+    // const myFuncName = 'addGroup'
+    // if (!hasRequiredKeys(payload, requiredKeys, myFuncName)) { return(sim) }
+
+    const updatedSim = cloneDeep (sim)
+
+    let tId = updatedSim.topics.ids[updatedSim.topics.ids.length - 1]
+    if (has(payload, 'topicId')) { tId = payload.topicId } //TODO: Support lookup by cluster+name?
+
+    const cId = updatedSim.topics.byId[tId].clusterId
+    const gId = `${cId}g${updatedSim.groups.nextId}`
+
+    let topicMapping = {}
+    topicMapping[tId] = {}
+
+    const g = {
+        'id': gId,
+        'topicMapping': topicMapping,
+        'consumers': [ ],
+        'topics': [ tId ]
+    }
+   
+    updatedSim.groups.ids.push(gId)
+    updatedSim.groups.byId[gId] = g
+    updatedSim.groups.nextId++
+
+    // updatedSim = groupRebalanceTopic(sim, gId, tId) // Doesn't make sense with 0 consumers
+
+    return(updatedSim)
+}
+
+export const addInstance = (sim, payload) => {
+    const requiredKeys = [ 'name', 'perfData', 'backlog' ]
+    const myFuncName = 'addInstance'
+    if (!hasRequiredKeys(payload, requiredKeys, myFuncName)) { return(sim) }
+
+    //TODO: Better action defaulting and requirements
+    const requiredPerfDataKeys = [ 'capacity' ]
+    if (!hasRequiredKeys(payload.perfData, requiredPerfDataKeys, `${myFuncName}(perfData)`)) { return(sim) }
+
+    const requiredBacklogKeys = [ 'maxBacklog' ]
+    if (!hasRequiredKeys(payload.backlog, requiredBacklogKeys, `${myFuncName}(backlog)`)) { return(sim) }
+
+
+    const updatedSim = cloneDeep (sim)
+
+    const iId = `i${updatedSim.instances.nextId}`
+    const backlog = cloneDeep(payload.backlog)
+    backlog['backlog'] = 0
+    backlog['dropped'] = 0
+
+    const i = {
+        'id': iId,
+        'name': payload.name,
+        'perfData': cloneDeep(payload.perfData),
+        'backlog': backlog
+    }
+   
+    updatedSim.instances.ids.push(iId)
+    updatedSim.instances.byId[iId] = i
+    updatedSim.instances.nextId++
+
+    return(updatedSim)
+}
+
+export const addSource = (sim, payload) => {
+    const requiredKeys = [ 'type', 'rateLimit' ]
+    const myFuncName = 'addSource'
+    if (!hasRequiredKeys(payload, requiredKeys, myFuncName)) { return(sim) }
+
+    let updatedSim = cloneDeep (sim)
+
+    let iId = updatedSim.instances.ids[updatedSim.instances.ids.length - 1]
+    if (has(payload, 'instanceId')) { iId = payload.instanceId } //TODO: Support lookup by name?
+
+    let sId = 'simpleSource'
+    if (has(payload, 'id')) { 
+        sId = payload.id 
+    } else if (payload.type === 'group') {
+        sId = updatedSim.groups.ids[updatedSim.groups.ids.length - 1]
+
+    }
+
+    const s = {
+        'id': sId,
+        'type': payload.type,
+        'rateLimit': payload.rateLimit
+    }
+   
+    updatedSim.instances.byId[iId].source = s //BUG: this isn't adding, this is overwriting!
+    if (payload.type === 'group') {
+        updatedSim.groups.byId[sId].consumers.push(iId)
+        for (let tId of updatedSim.groups.byId[sId].topics) { 
+            updatedSim = groupRebalanceTopic(updatedSim, sId, tId)
+        }
+    }
+
+    return(updatedSim)
+}
+
+export const addDrain = (sim, payload) => {
+    const requiredKeys = [ 'type', 'rateLimit' ]
+    const myFuncName = 'addDrain'
+    if (!hasRequiredKeys(payload, requiredKeys, myFuncName)) { return(sim) }
+
+    let updatedSim = cloneDeep (sim)
+
+    let iId = updatedSim.instances.ids[updatedSim.instances.ids.length - 1]
+    if (has(payload, 'instanceId')) { iId = payload.instanceId } //TODO: Support lookup by name?
+
+    let dId = 'simpleDrain'
+    if (has(payload, 'id')) { 
+        dId = payload.id 
+    } else if (payload.type === 'topic') {
+        dId = updatedSim.topics.ids[updatedSim.topics.ids.length - 1]
+    }
+
+    const d = {
+        'id': dId,
+        'type': payload.type,
+        'rateLimit': payload.rateLimit
+    }
+   
+    updatedSim.instances.byId[iId].drain = d //BUG: this isn't adding, this is overwriting!
 
     return(updatedSim)
 }

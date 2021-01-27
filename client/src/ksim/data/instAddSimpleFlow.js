@@ -48,7 +48,7 @@ export const instAddSimpleFlow = [
             'backlog': { 'maxBacklog': 100 }
         }
     },
-    {'action': 'addSource', 'payload': { 'type': 'topic', 'rateLimit': -1 }},  // in g0, from c0t0
+    {'action': 'addSource', 'payload': { 'type': 'group', 'rateLimit': -1 }},  // in g0, from c0t0
     {'action': 'addDrain',  'payload': { 'type': 'simpleDrain', 'rateLimit': 4 }}, 
     
     // Add an INSTANCE (consumer)
@@ -59,6 +59,6 @@ export const instAddSimpleFlow = [
             'backlog': { 'maxBacklog': 100 }
         }
     },
-    {'action': 'addSource', 'payload': { 'type': 'topic', 'rateLimit': -1 }},  // in g0, from c0t0
+    {'action': 'addSource', 'payload': { 'type': 'group', 'rateLimit': -1 }},  // in g0, from c0t0
     {'action': 'addDrain',  'payload': { 'type': 'simpleDrain', 'rateLimit': 4 }}, 
 ]
