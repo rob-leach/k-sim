@@ -1,5 +1,5 @@
-import { cloneDeep } from "lodash"
 import { applyActions } from './actions.js'
+import { calcTock } from './tock.js'
 
 export const newSim = () => {
     return( {
@@ -33,20 +33,16 @@ export const newSim = () => {
     })
 }
 
-export const calcTock = (sim) => {
-    const nextSim = cloneDeep ( sim )
-    //FIXME: don't just return the old state make a new one!
-
-    return(nextSim) 
-}
 
 export const tick = (state, nonce) => {
 
     //const sim = lockState() //TODO: actually implement locking
 
     if (state.lock.owner === nonce) {
+        //TICK: Update the 'things' and their relationships
         const updatedSim = applyActions( state.sim, state.requestedActions )
 
+        //TOCK: Update the dynamics of the things
         const finalSim = calcTock(updatedSim)
         //console.log('DELETEME final tick state', finalSim)
         return({

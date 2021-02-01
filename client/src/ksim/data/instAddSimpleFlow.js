@@ -35,7 +35,7 @@ export const instAddSimpleFlow = [
         }
     },
     {'action': 'addSource', 'payload': { 'type': 'simpleSource', 'rateLimit': 4 }},  
-    {'action': 'addDrain',  'payload': { 'type': 'topic', 'rateLimit': -1 }}, // to topic c0t0
+    {'action': 'addDrain',  'payload': { 'type': 'topic', 'rateLimit': 999 }}, // to topic c0t0
   
     // Add a GROUP (for consumers)
     {'action': 'addGroup',  'payload': {} }, // g0 (consumer group on topic c0t0)
@@ -48,7 +48,7 @@ export const instAddSimpleFlow = [
             'backlog': { 'maxBacklog': 100 }
         }
     },
-    {'action': 'addSource', 'payload': { 'type': 'group', 'rateLimit': -1 }},  // in g0, from c0t0
+    {'action': 'addSource', 'payload': { 'type': 'group', 'rateLimit': 999 }},  // in g0, from c0t0
     {'action': 'addDrain',  'payload': { 'type': 'simpleDrain', 'rateLimit': 4 }}, 
     
     // Add an INSTANCE (consumer)
@@ -59,6 +59,6 @@ export const instAddSimpleFlow = [
             'backlog': { 'maxBacklog': 100 }
         }
     },
-    {'action': 'addSource', 'payload': { 'type': 'group', 'rateLimit': -1 }},  // in g0, from c0t0
+    {'action': 'addSource', 'payload': { 'type': 'group', 'rateLimit': 999 }},  // in g0, from c0t0
     {'action': 'addDrain',  'payload': { 'type': 'simpleDrain', 'rateLimit': 4 }}, 
 ]

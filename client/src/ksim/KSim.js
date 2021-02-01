@@ -25,7 +25,7 @@ class KSim extends Component {
   lockTickTock() {
     const nonce = Math.floor( Math.random() * 100000 ) // Our "key"
 
-    console.log(`lock(${nonce}) tick, tock: `)
+    //console.log(`lock(${nonce}) tick, tock: `)
     this.lock.acquire('sim', function() {
       if (!this.state.lock.isLocked) { //Do not even attempt to use the lock if state is bad
         this.setState({...this.state,  //This informs the world what state we locked into
@@ -43,8 +43,9 @@ class KSim extends Component {
   componentDidMount() {
     //Apply the initialization to state
     this.lockTickTock()
+    
     this.setState({
-      intervalOne:  setInterval( () => this.lockTickTock(), 100 )
+      intervalOne:  setInterval( () => this.lockTickTock(), 1000 )
     })
   }
 

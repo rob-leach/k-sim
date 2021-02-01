@@ -30,6 +30,7 @@ export const applyAction = (sim, action) => {
         case 'addTopic':
             return(addTopic(sim, action.payload))
             
+        //FIXME: Needs to rebalance dependent consumer groups
         case 'addPartition':
             return(addPartition(sim, action.payload))
             
@@ -237,10 +238,13 @@ export const addInstance = (sim, payload) => {
     backlog['backlog'] = 0
     backlog['dropped'] = 0
 
+    const perfData = cloneDeep(payload.perfData)
+    perfData['tickCapacity'] = perfData.capacity
+
     const i = {
         'id': iId,
         'name': payload.name,
-        'perfData': cloneDeep(payload.perfData),
+        'perfData': perfData,
         'backlog': backlog
     }
    
