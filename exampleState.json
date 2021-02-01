@@ -248,7 +248,7 @@
                 "name": "simpleConsumer-i4",
                 "source": {
                     "type": "group",
-                    "groupId": "g1",
+                    "id": "g1",
                     "rateLimit": -1
                 },
                 "drain": {

@@ -40,18 +40,25 @@ export const calcTock = (sim) => {
     return(nextSim) 
 }
 
-export const tick = (state) => {
-    const gotLock = true //TODO: actually implement locking
+export const tick = (state, nonce) => {
 
-    if (gotLock) {
+    //const sim = lockState() //TODO: actually implement locking
+
+    if (state.lock.owner === nonce) {
         const updatedSim = applyActions( state.sim, state.requestedActions )
 
         const finalSim = calcTock(updatedSim)
-        console.log('DELETEME final tick state', finalSim)
+        //console.log('DELETEME final tick state', finalSim)
         return({
             ...state,
             sim: finalSim,
-            requestedActions: []
+            requestedActions: [],
+            lock: {
+                "owner": 0,
+                "isLocked": false
+            }
         })
+    } else {
+        console.log(`       WHOA :  Skipping tick, my nonce(${nonce}) doesn't match lock owner(${state.lock.owner})`)
     }
 }
