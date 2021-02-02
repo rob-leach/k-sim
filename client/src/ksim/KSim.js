@@ -44,9 +44,9 @@ class KSim extends Component {
     //Apply the initialization to state
     this.lockTickTock()
     
-    this.setState({
-      intervalOne:  setInterval( () => this.lockTickTock(), 100 )
-    })
+    // this.setState({
+    //   intervalOne:  setInterval( () => this.lockTickTock(), 100 )
+    // })
   }
 
   componentWillUnmount() {}
