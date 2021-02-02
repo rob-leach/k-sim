@@ -3,16 +3,18 @@ import VisInstances from './VisInstances.js'
 import VisPartitions from './VisPartitions.js'
 import VisBrokers from './VisBrokers.js'
 
+import { whatDrainsToTopic, whatSourcesFromTopic, whatPartitionsInThisTopic, whatHostsThesePartitions } from '../utils/utils.js'
+
 class VisOneTopicFlow extends React.Component {
 	constructor(props) {
 		super();
     }
 
 	render() {
-        const instancesProducing = []
-        const partitions = []
-        const brokers = []
-        const instancesConsuming = []
+        const instancesProducing = whatDrainsToTopic(this.props.topicId, this.props.sim)
+        const partitions = whatPartitionsInThisTopic(this.props.topicId, this.props.sim)
+        const brokers = whatHostsThesePartitions(partitions, this.props.sim)
+        const instancesConsuming = whatSourcesFromTopic(this.props.topicId, this.props.sim)
 
         //console.log(`VisOneTopicFlow(${this.props.topicId})`)
         return(
