@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import AsyncLock from 'async-lock';
 import KSimCtl from './KSimCtl.js'
-import KSimVis from './KSimVis.js'
+import KSimVis from './vis/KSimVis.js'
 import KSimCtx from './KSimCtx.js'
 import { newSim, tick } from './engine/KSimEngine.js'
 import { instAddSimpleFlow } from './data/instAddSimpleFlow.js'
