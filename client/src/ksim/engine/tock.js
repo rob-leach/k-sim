@@ -5,7 +5,7 @@ export const tickBroker = (id, sim) => {
 }
 
 export const attemptProduce = (demand, instance, topicId, sim) => {
-    let newSim = cloneDeep ( sim )
+    let newSim = cloneDeep( sim )
 
     let t = sim.topics.byId[topicId]
     let pList = shuffle(t.partitions) //Randomly try them in order until we produce them all
@@ -32,15 +32,47 @@ export const attemptProduce = (demand, instance, topicId, sim) => {
     return [producedRecords, newSim]
 }
 
-export const tickInstance = (id, sim) => {
-    let nextSim = cloneDeep ( sim )
+export const attemptConsume = (demand, instance, groupId, sim) => {
+    let nextSim = cloneDeep( sim )
 
-    let i = cloneDeep ( nextSim.instances.byId[id] )
+    let g = cloneDeep ( nextSim.groups.byId[groupId] ) 
+    var finalRecords = 0 
+
+    for (let tId of g.topics) {
+        if (demand === 0) { break }
+
+        // let t = nextSim.topics.byId[tId]
+        let topicMapping = g.topicMapping[tId]
+        for (let pId in topicMapping) { // <- Iterating over keys
+            if (demand === 0) { break }
+
+            if (topicMapping[pId].instanceId === instance.id) {
+                let rId = nextSim.partitions.byId[pId].replicas[0] // ASSUME: sorted in leader order
+                let r = nextSim.replicas.byId[rId]
+                let availRecords = Math.max(0 , (r.maxOffset - topicMapping[pId].offset) ) 
+
+                let consumedRecords = Math.min(availRecords, demand)
+                demand -= consumedRecords
+                finalRecords += consumedRecords
+                g.topicMapping[tId][pId].offset += consumedRecords
+                //console.log(`(${instance.id}, ${rId})consumed ${consumedRecords}`)
+            }
+        }
+    }
+
+    nextSim.groups.byId[groupId] = g
+    return [finalRecords, nextSim]
+}
+
+export const tickInstance = (id, sim) => {
+    let nextSim = cloneDeep( sim )
+
+    let i = cloneDeep( nextSim.instances.byId[id] )
 
     // We get a fresh amount of capacity each run
     let capacity = i.perfData.capacity
 
-    //FIXME: Use helper functions and better pass state
+    //FIXME: Use helper functions by passing state?
     //TODO: loop for (let s in i.source) {
     let s = i.source
     switch (s.type) { 
@@ -49,7 +81,15 @@ export const tickInstance = (id, sim) => {
             capacity -= simpleSourceRecords
             i.backlog.backlog += simpleSourceRecords
             break;
-        case 'topic':
+        case 'group':
+            let availBacklogCapacity = Math.max(0, i.backlog.maxBacklog - i.backlog.backlog)
+            let availConsumeCapacity = Math.min(s.rateLimit, capacity, availBacklogCapacity)
+
+            let consumedRecords
+            [consumedRecords, nextSim] = attemptConsume(availConsumeCapacity, i, s.id, nextSim)
+
+            capacity -= consumedRecords
+            i.backlog.backlog += consumedRecords
             break;
         default:
             //invalid source, ignore!
@@ -83,7 +123,6 @@ export const tickInstance = (id, sim) => {
 
     i.perfData.tickCapacity = capacity // leave remaining capacity for others
     nextSim.instances.byId[id] = i
-
     return(nextSim)
 }
 

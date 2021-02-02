@@ -45,7 +45,7 @@ class KSim extends Component {
     this.lockTickTock()
     
     this.setState({
-      intervalOne:  setInterval( () => this.lockTickTock(), 1000 )
+      intervalOne:  setInterval( () => this.lockTickTock(), 100 )
     })
   }
 
