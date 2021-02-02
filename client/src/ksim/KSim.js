@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import AsyncLock from 'async-lock';
-import KSimCtl from './KSimCtl.js'
+import KSimCtl from './ctl/KSimCtl.js'
 import KSimVis from './vis/KSimVis.js'
 import KSimCtx from './KSimCtx.js'
 import { newSim, tick } from './engine/KSimEngine.js'
@@ -40,12 +40,24 @@ class KSim extends Component {
     }.bind(this))
   }
 
+  requestAction (action, payload) {
+
+    console.log("In request action")
+    console.log(this.state)
+    if(!this.state.lock.isLocked){
+      this.setState({ ...this.state,
+        requestedActions: [...this.state.requestedActions, {action: action, payload: payload}]
+      })
+    }
+
+  }
+
   componentDidMount() {
     //Apply the initialization to state
     this.lockTickTock()
     
     // this.setState({
-    //   intervalOne:  setInterval( () => this.lockTickTock(), 100 )
+    //   intervalOne:  setInterval( () => this.lockTickTock(), 1500 )
     // })
   }
 
@@ -55,7 +67,7 @@ class KSim extends Component {
   	return (
     <div className="k-sim">
       <button className="forceTick" onClick = {() => this.lockTickTock()}>tick!</button>
-      <KSimCtl sim={this.state.sim} lockTickTock={this.lockTickTock}/>
+      <KSimCtl sim={this.state.sim} requestAction={(action, payload)=>{this.requestAction(action, payload)}}/>
       <KSimVis sim={this.state.sim}/>
       <KSimCtx selection={this.state.sim.selection}/>
 		</div>
