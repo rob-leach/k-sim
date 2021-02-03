@@ -21,10 +21,6 @@ export const newSim = () => {
             "totalUsedCapacity": 0
         },
         "gen": 0,  // Generation number is not tick number, every mutation makes a new generation
-        "lock": {  // Engine will mark "lock.isLocked" to True before calculating new ticks. Changes should not be performed during locks.
-            "owner": 0, // Engine will store a nonce here for their action id
-            "isLocked": false // Engine when `true` no others should attempt a state update to the simulator
-        },
         "selection": {
             "simType": null,
             "id": null,
