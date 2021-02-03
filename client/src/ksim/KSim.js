@@ -3,8 +3,10 @@ import AsyncLock from 'async-lock';
 import KSimCtl from './ctl/KSimCtl.js'
 import KSimVis from './vis/KSimVis.js'
 import KSimCtx from './KSimCtx.js'
+import './KSim.css'
 import { newSim, tick } from './engine/KSimEngine.js'
 import { instAddSimpleFlow } from './data/instAddSimpleFlow.js'
+
 
 class KSim extends Component {
   constructor(props) {
@@ -65,12 +67,21 @@ class KSim extends Component {
 
   render() {
   	return (
+      <React.Fragment>
+      <button className="force-tick" onClick = {() => this.lockTickTock()}>tick!</button>
+
     <div className="k-sim">
-      <button className="forceTick" onClick = {() => this.lockTickTock()}>tick!</button>
-      <KSimCtl sim={this.state.sim} requestAction={(action, payload)=>{this.requestAction(action, payload)}}/>
-      <KSimVis sim={this.state.sim}/>
-      <KSimCtx selection={this.state.sim.selection}/>
-		</div>
+      <div className = "k-sim-ctl">
+        <KSimCtl sim={this.state.sim} requestAction={(action, payload)=>{this.requestAction(action, payload)}}/>
+      </div>
+      <div className = "k-sim-vis">
+        <KSimVis sim={this.state.sim}/>
+      </div>
+      <div className = "k-sim-ctx">
+        <KSimCtx selection={this.state.sim.selection}/>
+      </div>
+    </div>
+    </React.Fragment>
     );
   }
 }

@@ -1,0 +1,28 @@
+.k-sim {
+    width: 1215px;
+    overflow: hidden; 
+}
+
+.force-tick{
+    float: left;
+    margin-left: 10px;
+    width: 10%
+}
+
+.k-sim-ctl {
+    width: 300px;
+    height:600px;
+    float:left;  
+} 
+
+.k-sim-vis {
+    width: 600px;
+    height: 100%;
+    float: left;
+}
+
+.k-sim-ctx{
+    width: 300px;
+    height:600px;
+    float:left;  
+}
