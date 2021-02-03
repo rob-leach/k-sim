@@ -20,12 +20,12 @@ class KSimCtl extends Component {
       'backlog': { 'maxBacklog': 100 }
       }
 
-      const sourceKafkaPayload = {'action': 'addSource', 'payload': { 'type': 'group', 'rateLimit': 999 }}
+      const sourceKafkaPayload = { 'type': 'group', 'rateLimit': 999 }
       const drainKafkaPayload = { 'type': 'topic', 'rateLimit': 999 }
   	return (
       <div className="k-sim-ctl">
           Simulation Control
-          <div classNamee="ctl-buttons">
+          <div className="ctl-buttons">
             <button className="actionRequest" onClick = {() => this.props.requestAction("addPartition", {})}>Add Partition</button>
             <button className="actionRequest" onClick = {() => this.props.requestAction("addInstance", instancePayload)}>Add Instance</button>
             <button className="actionRequest" onClick = {() => this.props.requestAction("addSource",  sourceKafkaPayload)}>Set Kafka Source</button>

@@ -69,10 +69,14 @@ class KSim extends Component {
   render() {
   	return (
       <div className="k-sim">
+        <div className="k-sim-buttons">
           <button className="force-tick" onClick = {() => this.lockTickTock()}>tick!</button>
+        </div>
+        <div className="k-sim-content">
           <KSimCtl sim={this.state.sim} requestAction={(action, payload)=>{this.requestAction(action, payload)}}/>
           <KSimVis sim={this.state.sim}/>
           <KSimCtx selection={this.state.sim.selection}/>
+        </div>
       </div>
     );
   }

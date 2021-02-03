@@ -1,4 +1,8 @@
-.k-sim {
+.k-sim-content {
+    width: 1215px;
+    overflow: hidden; 
+}
+.k-sim-buttons {
     width: 1215px;
     overflow: hidden; 
 }

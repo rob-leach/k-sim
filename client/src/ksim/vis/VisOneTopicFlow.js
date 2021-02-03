@@ -16,7 +16,10 @@ class VisOneTopicFlow extends React.Component {
         const brokers = whatHostsThesePartitions(partitions, this.props.sim)
         const instancesConsuming = whatSourcesFromTopic(this.props.topicId, this.props.sim)
 
-        //console.log(`VisOneTopicFlow(${this.props.topicId})`)
+        console.log(`VisOneTopicFlow(${this.props.topicId})`)
+        console.log('producers:', instancesProducing)
+        console.log('partitions:', partitions)
+        console.log('consumers:', instancesConsuming)
         return(
             <g className="k-sim-topic-flow">
                 <VisInstances ids={instancesProducing} sim={this.props.sim}/>
