@@ -67,20 +67,13 @@ class KSim extends Component {
 
   render() {
   	return (
-      <React.Fragment>
+      <React.Fragment> 
       <button className="force-tick" onClick = {() => this.lockTickTock()}>tick!</button>
-
-    <div className="k-sim">
-      <div className = "k-sim-ctl">
-        <KSimCtl sim={this.state.sim} requestAction={(action, payload)=>{this.requestAction(action, payload)}}/>
+      <div className="k-sim">
+          <KSimCtl sim={this.state.sim} requestAction={(action, payload)=>{this.requestAction(action, payload)}}/>
+          <KSimVis sim={this.state.sim}/>
+          <KSimCtx selection={this.state.sim.selection}/>
       </div>
-      <div className = "k-sim-vis">
-        <KSimVis sim={this.state.sim}/>
-      </div>
-      <div className = "k-sim-ctx">
-        <KSimCtx selection={this.state.sim.selection}/>
-      </div>
-    </div>
     </React.Fragment>
     );
   }
