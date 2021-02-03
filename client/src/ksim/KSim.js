@@ -21,7 +21,8 @@ class KSim extends Component {
       "lock": {
         "owner": 0,
         "isLocked": false
-      }
+      },
+      "intervalOne": null
     }
   }
   lockTickTock() {
@@ -56,7 +57,7 @@ class KSim extends Component {
 
   componentDidMount() {
     //Apply the initialization to state
-    this.lockTickTock()
+    // this.lockTickTock()
     
     // this.setState({
     //   intervalOne:  setInterval( () => this.lockTickTock(), 1500 )
@@ -67,14 +68,12 @@ class KSim extends Component {
 
   render() {
   	return (
-      <React.Fragment> 
-      <button className="force-tick" onClick = {() => this.lockTickTock()}>tick!</button>
       <div className="k-sim">
+          <button className="force-tick" onClick = {() => this.lockTickTock()}>tick!</button>
           <KSimCtl sim={this.state.sim} requestAction={(action, payload)=>{this.requestAction(action, payload)}}/>
           <KSimVis sim={this.state.sim}/>
           <KSimCtx selection={this.state.sim.selection}/>
       </div>
-    </React.Fragment>
     );
   }
 }
