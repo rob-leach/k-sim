@@ -16,16 +16,41 @@ class VisOneTopicFlow extends React.Component {
         const brokers = whatHostsThesePartitions(partitions, this.props.sim)
         const instancesConsuming = whatSourcesFromTopic(this.props.topicId, this.props.sim)
 
-        console.log(`VisOneTopicFlow(${this.props.topicId})`)
-        console.log('producers:', instancesProducing)
-        console.log('partitions:', partitions)
-        console.log('consumers:', instancesConsuming)
+        const instanceWidth = this.props.width / 5
+        const partitionsWidth = this.props.width - (2 * instanceWidth)
+
+        const instanceHeight = this.props.height * (4 / 5)
+        const partitionsHeight = instanceHeight
+
+        const brokersWidth = partitionsWidth
+        const brokersHeight = this.props.height - partitionsHeight
+
         return(
             <g className="k-sim-topic-flow">
-                <VisInstances ids={instancesProducing} sim={this.props.sim}/>
-                <VisPartitions ids={partitions} sim={this.props.sim}/>
-                <VisBrokers ids={brokers} sim={this.props.sim}/>
-                <VisInstances ids={instancesConsuming} sim={this.props.sim}/>
+                <VisInstances ids={instancesProducing} sim={this.props.sim}
+                    x={this.props.x}
+                    y={this.props.y}
+                    width={instanceWidth}
+                    height={instanceHeight}
+                    />
+                <VisPartitions ids={partitions} sim={this.props.sim}
+                    x={this.props.x + instanceWidth}
+                    y={this.props.y}
+                    width={partitionsWidth}
+                    height={partitionsHeight}
+                    />
+                <VisBrokers ids={brokers} sim={this.props.sim}
+                    x={this.props.x}
+                    y={this.props.y + instanceHeight}
+                    width={brokersWidth}
+                    height={brokersHeight}
+                />
+                <VisInstances ids={instancesConsuming} sim={this.props.sim}
+                    x={this.props.x + instanceWidth + partitionsWidth}
+                    y={this.props.y}
+                    width={instanceWidth}
+                    height={instanceHeight}
+                    />
             </g>
         )
     }

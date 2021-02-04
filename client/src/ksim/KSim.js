@@ -44,9 +44,6 @@ class KSim extends Component {
   }
 
   requestAction (action, payload) {
-
-    console.log("In request action")
-    console.log(this.state)
     if(!this.state.lock.isLocked){
       this.setState({ ...this.state,
         requestedActions: [...this.state.requestedActions, {action: action, payload: payload}]
@@ -59,9 +56,9 @@ class KSim extends Component {
     //Apply the initialization to state
     // this.lockTickTock()
     
-    // this.setState({
-    //   intervalOne:  setInterval( () => this.lockTickTock(), 1500 )
-    // })
+    this.setState({
+      intervalOne:  setInterval( () => this.lockTickTock(), 100 )
+    })
   }
 
   componentWillUnmount() {}
@@ -74,7 +71,7 @@ class KSim extends Component {
         </div>
         <div className="k-sim-content">
           <KSimCtl sim={this.state.sim} requestAction={(action, payload)=>{this.requestAction(action, payload)}}/>
-          <KSimVis sim={this.state.sim}/>
+          <KSimVis sim={this.state.sim} svgWidth={600} svgHeight={600}/>
           <KSimCtx selection={this.state.sim.selection}/>
         </div>
       </div>

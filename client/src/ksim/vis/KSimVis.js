@@ -23,7 +23,14 @@ class KSimVis extends Component {
   	return (
     <div className="k-sim-vis">
       <svg className="k-sim-svg" width={svgDim.width} height={svgDim.height}>
-        <VisOneTopicFlow topicId={topicId} sim={this.props.sim}/>
+        <VisOneTopicFlow 
+          topicId={topicId} 
+          sim={this.props.sim}
+          width={svgDim.width}
+          height={svgDim.height}
+          x={0}
+          y={0}
+        />
       </svg>
       Raw simulation data
       <pre>{JSON.stringify(this.props.sim, null, 4)}</pre>

@@ -231,7 +231,7 @@ export const addInstance = (sim, payload) => {
     if (!hasRequiredKeys(payload.backlog, requiredBacklogKeys, `${myFuncName}(backlog)`)) { return(sim) }
 
 
-    const updatedSim = cloneDeep (sim)
+    let updatedSim = cloneDeep (sim)
 
     const iId = `i${updatedSim.instances.nextId}`
     const backlog = cloneDeep(payload.backlog)
@@ -251,6 +251,9 @@ export const addInstance = (sim, payload) => {
     updatedSim.instances.ids.push(iId)
     updatedSim.instances.byId[iId] = i
     updatedSim.instances.nextId++
+
+    updatedSim = addSource(updatedSim, {'type': 'simpleSource', 'rateLimit': 4})
+    updatedSim = addDrain(updatedSim, {'type': 'simpleDrain', 'rateLimit': 4})
 
     return(updatedSim)
 }
