@@ -1,11 +1,94 @@
 import React from 'react';
 
+class VisGroupOffset extends React.Component{
+	constructor(props) {
+		super();
+    }
+    render() {
+        //console.log('vGO', this.props)
+        // TODO: Helper function
+        const lag = this.props.parentOffset - this.props.myOffset
+        const yOffset = this.props.parentHeight * (lag / this.props.parentOffset) // No, this is not pixel accurate.  Pixel accurate is hard
+
+        let pos = {
+            x: this.props.x,
+            y: (this.props.parentY + yOffset)
+
+        }
+        
+        const rectHeight = this.props.maxPartitionHeight / 50 // *shrug*
+        let labelY = pos.y + rectHeight
+
+        const rectWidth = this.props.partitionWidth * 11 / 10 // 10% overhang 
+        let labelX = pos.x + (rectWidth / 20)
+        pos.x += (this.props.partitionWidth - rectWidth) / 2 // overhang both sides
+
+        return(<g className="group-offset-rect" 
+            key={`${this.props.pId}-${this.props.gId}`}>
+            <rect
+                x={pos.x}
+                y={pos.y}
+                height={rectHeight}
+                width={rectWidth}
+                fill='purple'
+                stroke='purple'
+            />
+            <text
+                x={labelX}
+                y={labelY}
+                dominantBaseline="hanging"
+            >
+                {this.props.iId}-{this.props.myOffset}
+            </text>
+            </g>
+        )
+    }
+}
+
+class VisGroupOffsets extends React.Component{
+	constructor(props) {
+		super();
+    }
+    render() {
+        //console.log('vGOs', this.props)
+        let lineComps = []
+        let pId = this.props.pId
+        let tId = this.props.sim.partitions.byId[pId].topidId // <- Whoopsie typo upstream
+        //console.log(tId)
+        for (let g of Object.values(this.props.sim.groups.byId)) {
+            if (g.topicMapping[tId]) { //} && (g.topicMapping[tId].length > 0) ) {
+                if (pId in g.topicMapping[tId] ) { 
+                    lineComps.push(<VisGroupOffset
+                        sim={this.props.sim}
+                        pId={pId}
+                        gId={g.id}
+                        iId={g.topicMapping[tId][pId].instanceId}
+                        x={this.props.x}
+                        parentY={this.props.parentY}
+                        parentOffset={this.props.parentOffset}
+                        parentHeight={this.props.parentHeight}
+                        myOffset={g.topicMapping[tId][pId].offset}
+                        partitionWidth={this.props.partitionWidth}
+                        maxPartitionHeight={this.props.maxPartitionHeight}
+                    />)
+                }
+            }
+
+        }
+
+        return(
+            <g className={`${pId}-offsets`}>
+              {lineComps}
+            </g>
+        )
+    }
+}
 class VisPartition extends React.Component {
 	constructor(props) {
 		super();
     }
     render() {
-		let pId = this.props.pId
+        let pId = this.props.pId
         let rId = this.props.sim.partitions.byId[pId].replicas[0]
         
         const myOffset = this.props.sim.replicas.byId[rId].maxOffset //HACK: this isn't always true, but probably is
@@ -38,6 +121,16 @@ class VisPartition extends React.Component {
 					transform={`translate(${pos.x + this.props.width *2/3 } , ${labelY - 2 }) rotate(65)`} > 
 					{myOffset} ({pId})
 				</text>
+                <VisGroupOffsets
+                    sim={this.props.sim}
+                    pId={pId}
+                    x={this.props.x}
+                    parentY={pos.y}
+                    parentOffset={myOffset}
+                    parentHeight={height}
+                    partitionWidth={this.props.width}
+                    maxPartitionHeight={this.props.maxHeight}
+                />
 			</g>
 		);
     }

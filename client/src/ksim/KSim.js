@@ -72,7 +72,6 @@ class KSim extends Component {
         <div className="k-sim-content">
           <KSimCtl sim={this.state.sim} requestAction={(action, payload)=>{this.requestAction(action, payload)}}/>
           <KSimVis sim={this.state.sim} svgWidth={600} svgHeight={600}/>
-          <KSimCtx selection={this.state.sim.selection}/>
         </div>
       </div>
     );

@@ -22,7 +22,7 @@
 .k-sim-vis {
     width: 600px;
     height: 600px;
-    overflow-y: auto;
+    overflow-y: hidden;
     float: left;
 }
 

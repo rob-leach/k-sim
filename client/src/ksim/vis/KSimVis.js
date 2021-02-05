@@ -32,8 +32,8 @@ class KSimVis extends Component {
           y={0}
         />
       </svg>
-      Raw simulation data
-      <pre>{JSON.stringify(this.props.sim, null, 4)}</pre>
+      {/* Raw simulation data
+      <pre>{JSON.stringify(this.props.sim, null, 4)}</pre> */}
 	</div>
     );
   }
