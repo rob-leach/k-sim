@@ -57,7 +57,7 @@ class VisCapacity extends React.Component {
 
         const usedHeight = usedRatio * this.props.height
         const yOffset = this.props.height - usedHeight 
-        const capacityLabel = 'USD'
+        const capacityLabel = `${Math.floor((used / total) * 100)}%`
         return(
             <React.Fragment>
                 <rect 
@@ -77,9 +77,11 @@ class VisCapacity extends React.Component {
                     stroke="rgb(0,0,0)"
                 />
                 <text
-                    x={this.props.x} 
-                    y={this.props.y + yOffset}
-                    dominantBaseline="hanging"
+                    transform={`translate(${this.props.x + this.props.width } , ${this.props.y + this.props.height })` }
+                    // rotate(90)
+                    textAnchor="start"
+                    dominantBaseline="middle"
+                    //textLength={Math.max(usedHeight, 5)}
                 >
                     {capacityLabel}
                 </text>
@@ -115,7 +117,7 @@ class VisInstance extends React.Component {
                 maxBubbleSize={Math.min(this.props.width, this.props.height) / 3}
             />
             <VisCapacity
-                x={this.props.x + this.props.width / 10}
+                x={this.props.x + this.props.width / 18 }
                 y={this.props.y + this.props.height / 20}
                 perfData={perfData}
                 height={this.props.height * 9 / 10}
@@ -123,7 +125,7 @@ class VisInstance extends React.Component {
             />
             <text 
                 // textLength={this.props.width / 2}
-                x={this.props.x + this.props.width / 4}
+                x={this.props.x + this.props.width * 6 / 16}
                 y={this.props.y}
                 dominantBaseline="hanging">
                 {this.props.iId}

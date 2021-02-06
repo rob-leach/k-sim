@@ -1,9 +1,9 @@
 .k-sim-content {
-    width: 1215px;
+    width: 1815; 
     overflow: hidden; 
 }
 .k-sim-buttons {
-    width: 1215px;
+    width: 1815px;
     overflow: hidden; 
 }
 
@@ -20,7 +20,7 @@
 } 
 
 .k-sim-vis {
-    width: 600px;
+    width: 1800px;
     height: 600px;
     overflow-y: hidden;
     float: left;
