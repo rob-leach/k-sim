@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import AsyncLock from 'async-lock';
-import KSimCtl from './KSimCtl.js'
-import KSimVis from './KSimVis.js'
-import KSimCtx from './KSimCtx.js'
+//import KSimCtl from './ctl/KSimCtl.js'
+import KSimVis from './vis/KSimVis.js'
+//import KSimCtx from './KSimCtx.js'
+import './KSim.css'
 import { newSim, tick } from './engine/KSimEngine.js'
-import { instAddSimpleFlow } from './data/instAddSimpleFlow.js'
+//import { instAddSimpleFlow } from './data/instAddSimpleFlow.js'
+import { instTwoTopics } from './data/instTwoTopics.js'
+
 
 class KSim extends Component {
   constructor(props) {
@@ -15,11 +18,12 @@ class KSim extends Component {
 
     this.state = { 
       "sim": sim, 
-      "requestedActions": instAddSimpleFlow,
+      "requestedActions": instTwoTopics,
       "lock": {
         "owner": 0,
         "isLocked": false
-      }
+      },
+      "intervalOne": null
     }
   }
   lockTickTock() {
@@ -40,9 +44,18 @@ class KSim extends Component {
     }.bind(this))
   }
 
+  requestAction (action, payload) {
+    if(!this.state.lock.isLocked){
+      this.setState({ ...this.state,
+        requestedActions: [...this.state.requestedActions, {action: action, payload: payload}]
+      })
+    }
+
+  }
+
   componentDidMount() {
     //Apply the initialization to state
-    this.lockTickTock()
+    // this.lockTickTock()
     
     this.setState({
       intervalOne:  setInterval( () => this.lockTickTock(), 100 )
@@ -53,12 +66,15 @@ class KSim extends Component {
 
   render() {
   	return (
-    <div className="k-sim">
-      <button className="forceTick" onClick = {() => this.lockTickTock()}>tick!</button>
-      <KSimCtl sim={this.state.sim} lockTickTock={this.lockTickTock}/>
-      <KSimVis sim={this.state.sim}/>
-      <KSimCtx selection={this.state.sim.selection}/>
-		</div>
+      <div className="k-sim">
+        {/* <div className="k-sim-buttons">
+          <button className="force-tick" onClick = {() => this.lockTickTock()}>tick!</button>
+        </div> */}
+        <div className="k-sim-content">
+          {/* <KSimCtl sim={this.state.sim} requestAction={(action, payload)=>{this.requestAction(action, payload)}}/> */}
+          <KSimVis sim={this.state.sim} svgWidth={600} svgHeight={600} maxTopics={3}/>
+        </div>
+      </div>
     );
   }
 }
