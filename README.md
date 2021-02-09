@@ -3,6 +3,10 @@ kafka simulator
 
 A simple simulator trying to work through bottleneck/constraints theory as applied to a few simple Kafka topologies.
 
+See [VISION.md](./doc/VISION.md) for more details on why.
+
+See [ARCHITECTURE.md](./doc/ARCHITECTURE.md) for more details on how.
+
 ## Requirements
 (See `client` for local development details. Basically, it's a create-react-app project.)
 
