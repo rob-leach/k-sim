@@ -22,3 +22,8 @@ _Note: this needs additional work for better UX_
 Navigate to `src/ksim/data/` and inspect the example `instXXXX.js` files.
 
 Currently `instTwoTopics.js` is what will be loaded by `src/ksim/KSim.js`, you can experiment by directly editing that file, then reloading your browser.  The "actions" that you configure in that file have additional undocumented options that can be discovered in `src/ksim/engine/actions.js`.
+
+# Want to help us improve?
+- Found a bug? Let us know with an issue
+- Have a great idea for a feature? Issues can help there too?
+- Want to help us implement these things? Consider [CONTRIBUTING.md]!
